@@ -1,5 +1,6 @@
 import { CallToolResult } from "@modelcontextprotocol/sdk/types";
 import { z } from "zod";
+import { apiInstance } from "../../utils/api";
 
 const inputSchema = {
   employeeName: z
@@ -14,29 +15,7 @@ const handler = async ({
   employeeName?: string;
 }): Promise<CallToolResult> => {
   try {
-    const response = await fetch(
-      "http://localhost:5001/api/profiles/get-by/host-company",
-      {
-        method: "GET",
-        headers: {
-          "x-auth-token": process.env.X_AUTH_TOKEN || "",
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (!response.ok) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: `API request failed with status: ${response.status}`,
-          },
-        ],
-      };
-    }
-
-    const apiResponse = await response.json();
+    const apiResponse = await apiInstance.get("/profiles/get-by/host-company");
 
     if (!apiResponse.success || !apiResponse.data) {
       return {
@@ -83,6 +62,7 @@ const handler = async ({
             text: JSON.stringify(
               {
                 id: filteredEmployee._id,
+                userId: filteredEmployee.user?._id,
                 name: `${filteredEmployee.firstName} ${filteredEmployee.lastName}`,
                 employeeData: filteredEmployee,
               },
@@ -96,8 +76,10 @@ const handler = async ({
 
     const employeeList = employees.map((emp: any) => ({
       id: emp._id,
+      userId: emp.user?._id,
       name: `${emp.firstName} ${emp.lastName}`,
       email: emp.email,
+      note: "Use 'userId' field for get_iteration tool, NOT 'id' field"
     }));
 
     return {
@@ -108,6 +90,7 @@ const handler = async ({
             {
               totalEmployees: employeeList.length,
               employees: employeeList,
+              instructions: "IMPORTANT: To get iteration numbers, use the 'userId' field from each employee with the get_iteration tool. Do NOT use the 'id' field."
             },
             null,
             2
@@ -132,7 +115,7 @@ const handler = async ({
 export const getProfilesTool = {
   name: "get_profiles",
   description:
-    "Retrieves employee profiles from the host company. If employeeName is provided, returns that specific employee's data. Otherwise returns all employees with their IDs and names.",
+    "Retrieves employee profiles with employee data, IDs, names, emails and user IDs. IMPORTANT: The 'userId' field returned by this tool should be used with the get_iteration tool (NOT the 'id' field). Use userId for getting iteration numbers.",
   inputSchema,
   handler,
 };
