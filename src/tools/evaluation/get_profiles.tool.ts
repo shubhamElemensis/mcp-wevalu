@@ -79,7 +79,7 @@ const handler = async ({
       userId: emp.user?._id,
       name: `${emp.firstName} ${emp.lastName}`,
       email: emp.email,
-      note: "Use 'userId' field for get_iteration tool, NOT 'id' field"
+      note: "Use 'id' field for get_evaluators_list tool, 'userId' field for get_iteration tool"
     }));
 
     return {
@@ -90,7 +90,7 @@ const handler = async ({
             {
               totalEmployees: employeeList.length,
               employees: employeeList,
-              instructions: "IMPORTANT: To get iteration numbers, use the 'userId' field from each employee with the get_iteration tool. Do NOT use the 'id' field."
+              instructions: "IMPORTANT: Use 'id' field for get_evaluators_list tool, use 'userId' field for get_iteration tool."
             },
             null,
             2
@@ -115,7 +115,7 @@ const handler = async ({
 export const getProfilesTool = {
   name: "get_profiles",
   description:
-    "Retrieves employee profiles with employee data, IDs, names, emails and user IDs. IMPORTANT: The 'userId' field returned by this tool should be used with the get_iteration tool (NOT the 'id' field). Use userId for getting iteration numbers.",
+    "Retrieves employee profiles with employee data, IDs, names, emails and user IDs. IMPORTANT: Use 'id' field for get_evaluators_list tool, use 'userId' field for get_iteration tool.",
   inputSchema,
   handler,
 };
